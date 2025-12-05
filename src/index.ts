@@ -64,6 +64,16 @@ export { FaultManager } from './ran/fm/index.js';
 export { AIDefence } from './security/index.js';
 
 // ============================================================================
+// AI PROVIDERS
+// ============================================================================
+
+export {
+  AIProviderManager,
+  RANOptimizationAI,
+  createAIProviderManager
+} from './providers/index.js';
+
+// ============================================================================
 // SIMULATION
 // ============================================================================
 
