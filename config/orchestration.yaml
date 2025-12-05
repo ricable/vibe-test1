@@ -1,0 +1,113 @@
+# Agentic Flow Orchestration Configuration for Ericsson RAN
+
+orchestration:
+  engine: agentic-flow
+  version: "1.10.2"
+  
+  topology:
+    type: hierarchical
+    layers: 3
+    coordination_mode: mesh
+    
+  agents:
+    total_count: 66
+    auto_scaling: true
+    scaling_threshold: 0.8
+    
+  communication:
+    protocol: "mcp"
+    timeout_ms: 30000
+    retry_attempts: 3
+    batch_size: 100
+    
+  memory:
+    backend: "agentdb"
+    vector_db: "ruvector"
+    persistence: true
+    cache_size_mb: 2048
+    
+  persistence:
+    enabled: true
+    backend: "sqlite"
+    path: "./data/orchestration.db"
+    checkpoint_interval_seconds: 300
+
+claude_flow:
+  enabled: true
+  reasoning_bank: true
+  mcp_tools: 213
+  
+  features:
+    auto_agent_assignment: true
+    self_healing: true
+    neural_patterns: true
+    performance_optimization: true
+    
+  hooks:
+    pre_task: true
+    post_task: true
+    post_edit: true
+    session_management: true
+
+task_management:
+  queue_backend: "bull"
+  max_concurrent_tasks: 32
+  task_timeout_seconds: 3600
+  priority_levels: 5
+  
+  retry_policy:
+    max_attempts: 3
+    backoff_multiplier: 2
+    max_delay_seconds: 300
+
+monitoring:
+  enabled: true
+  interval_seconds: 30
+  metrics_retention_days: 30
+  
+  metrics:
+    - agent_health
+    - task_throughput
+    - memory_usage
+    - latency_p50_p99
+    - error_rates
+
+logging:
+  level: "info"
+  format: "json"
+  backends:
+    - "console"
+    - "file"
+  
+  console:
+    colorized: true
+  
+  file:
+    directory: "./logs"
+    max_size_mb: 100
+    retention_days: 7
+
+error_handling:
+  strategy: "circuit_breaker"
+  fallback_enabled: true
+  graceful_degradation: true
+  
+  alerts:
+    enabled: true
+    channels:
+      - "log"
+      - "webhook"
+    thresholds:
+      error_rate: 0.05
+      latency_p99_ms: 5000
+      memory_percent: 85
+
+performance:
+  optimization_level: 3
+  wasm_enabled: true
+  simd_acceleration: true
+  parallel_execution: true
+  
+  profiling:
+    enabled: false
+    interval_seconds: 60
