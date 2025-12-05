@@ -1,0 +1,168 @@
+{
+  "name": "test",
+  "description": "Ericsson RAN Swarm Optimizer - Claude Code Web Environment",
+  "version": "2.0.0",
+  "platform": "claude-web",
+
+  "environment_variables": {
+    "required": {
+      "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+      "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+      "GEMINI_API_KEY": "${GEMINI_API_KEY}",
+      "E2B_API_KEY": "${E2B_API_KEY}"
+    },
+    "defaults": {
+      "NODE_ENV": "production",
+      "PLATFORM": "claude-web",
+      "ARCH": "x64",
+      "LOG_LEVEL": "info",
+
+      "PRIMARY_MODEL": "claude-sonnet-4-20250514",
+      "PRIMARY_PROVIDER": "anthropic",
+      "SECONDARY_MODEL": "gemini-2.0-flash-exp",
+      "SECONDARY_PROVIDER": "google",
+      "MODEL_ROUTING_STRATEGY": "adaptive",
+
+      "SWARM_CLUSTER_ID": "ericsson-ran-cluster-01",
+      "SWARM_TOPOLOGY": "mesh",
+      "FEDERATION_ENABLED": "true",
+      "FEDERATION_ALGORITHM": "FedAvg",
+      "CONSENSUS_PROTOCOL": "strange-loops",
+
+      "CM_ENABLED": "true",
+      "CM_PLANNER": "GOAP",
+      "CM_SAFETY_VERIFICATION": "LTL",
+
+      "PM_ENABLED": "true",
+      "PM_CHAOS_DETECTION_ENABLED": "true",
+      "PM_FORECASTING_MODEL": "LSTM",
+
+      "FM_ENABLED": "true",
+      "FM_ANOMALY_DETECTION": "fast-path",
+      "FM_RCA_ENGINE": "neuro-symbolic",
+
+      "GNN_ENABLED": "true",
+      "GNN_TYPE": "ST-GNN",
+      "GNN_LAYERS": "4",
+      "GNN_ATTENTION_TYPE": "flash",
+
+      "VECTOR_STORE_ALGORITHM": "HNSW",
+      "VECTOR_STORE_DIMENSIONS": "768",
+
+      "CLAUDE_FLOW_ENABLED": "true",
+      "HIVE_MIND_ENABLED": "true",
+      "REASONING_BANK_ENABLED": "true",
+      "SPARC_ENABLED": "true",
+
+      "AIDEFENCE_ENABLED": "true",
+      "ADVERSARIAL_DETECTION": "true",
+      "GUARDRAILS_ENABLED": "true"
+    }
+  },
+
+  "npm_packages": {
+    "core": [
+      "claude-flow@alpha",
+      "agentic-flow",
+      "ruvector"
+    ],
+    "ai_providers": [
+      "@anthropic-ai/sdk",
+      "@google/generative-ai",
+      "openai"
+    ],
+    "swarm_intelligence": [
+      "ruv-swarm",
+      "agentdb",
+      "dspy.ts",
+      "research-swarm",
+      "strange-loops"
+    ],
+    "neural_networks": [
+      "@ruvector/gnn",
+      "@ruvector/attention",
+      "@ruvector/ruvllm",
+      "@ruvector/sona",
+      "spiking-neural",
+      "temporal-neural-solver"
+    ],
+    "robotics_automation": [
+      "agentic-robotics",
+      "@agentic-robotics/core",
+      "@agentic-robotics/mcp",
+      "@agentic-robotics/self-learning"
+    ],
+    "optimization": [
+      "@neural-trader/example-quantum-optimization",
+      "@neural-trader/example-neuromorphic-computing",
+      "@neural-trader/example-evolutionary-game-theory",
+      "@neural-trader/example-energy-grid-optimization"
+    ],
+    "graph_databases": [
+      "@ruvector/graph-node",
+      "@ruvector/router",
+      "@ruvector/tiny-dancer"
+    ],
+    "ai_learning": [
+      "@foxruv/iris",
+      "@foxruv/iris-core",
+      "@foxruv/iris-agentic-synth",
+      "@foxruv/agent-learning-core"
+    ],
+    "security": [
+      "aidefence",
+      "psycho-symbolic-integration"
+    ],
+    "utilities": [
+      "goalie",
+      "qudag",
+      "agentic-jujutsu",
+      "agent-booster"
+    ]
+  },
+
+  "mcp_servers": [
+    {
+      "name": "claude-flow",
+      "command": "npx claude-flow@alpha mcp start",
+      "required": true
+    },
+    {
+      "name": "ruv-swarm",
+      "command": "npx ruv-swarm mcp start",
+      "required": false
+    },
+    {
+      "name": "strange-loops-mcp",
+      "command": "npx strange-loops-mcp start",
+      "required": false
+    }
+  ],
+
+  "initialization_commands": [
+    "npm install",
+    "npx claude-flow@alpha hooks pre-task --description 'Initialize Ericsson RAN environment'",
+    "mkdir -p data/agentdb data/vectors logs"
+  ],
+
+  "ran_agents": {
+    "cm_agent": {
+      "name": "Configuration Management Agent",
+      "type": "configurator",
+      "capabilities": ["GOAP planning", "LTL verification", "atomic rollback"],
+      "managed_objects": ["EUtranCellFDD", "NRCellDU", "NRCellCU", "RetDevice", "ReportConfigEUtra"]
+    },
+    "pm_agent": {
+      "name": "Performance Management Agent",
+      "type": "optimizer",
+      "capabilities": ["chaos detection", "LSTM forecasting", "energy optimization"],
+      "metrics": ["throughput", "latency", "RSRP", "SINR", "handover_success"]
+    },
+    "fm_agent": {
+      "name": "Fault Management Agent",
+      "type": "healer",
+      "capabilities": ["anomaly detection", "neuro-symbolic RCA", "alarm correlation", "self-healing"],
+      "alarm_types": ["RSSI", "jamming", "sleeping_cell", "interference"]
+    }
+  }
+}
