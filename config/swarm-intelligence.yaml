@@ -1,0 +1,141 @@
+# Swarm Intelligence Configuration
+
+swarm:
+  enabled: true
+  
+  topology:
+    type: "hierarchical"
+    layers: 3
+    
+    layer1:
+      name: "coordinators"
+      count: 3
+      coordination_mode: "consensus"
+      
+    layer2:
+      name: "optimizers"
+      count: 20
+      coordination_mode: "mesh"
+      
+    layer3:
+      name: "workers"
+      count: 43
+      coordination_mode: "mesh"
+
+  nano_agents:
+    enabled: true
+    system: "strange-loops"
+    count: 1000
+    
+    temporal_consciousness:
+      enabled: true
+      memory_depth: 100
+      
+    emergence:
+      enabled: true
+      min_agents: 100
+      
+    coordination:
+      overhead_ms: "<1"
+      throughput_ops_per_sec: 500000
+
+  intelligence_mechanisms:
+    particle_swarm_optimization:
+      enabled: true
+      population_size: 66
+      iterations: 100
+      
+      parameters:
+        cognitive_coefficient: 2.0
+        social_coefficient: 2.0
+        inertia_weight: 0.7
+        
+    genetic_algorithm:
+      enabled: true
+      population_size: 100
+      generations: 50
+      mutation_rate: 0.1
+      
+    ant_colony_optimization:
+      enabled: true
+      pheromone_evaporation: 0.1
+      pheromone_deposit: 1.0
+      
+    reinforcement_learning:
+      enabled: true
+      algorithm: "multi_agent_q_learning"
+      learning_rate: 0.1
+      discount_factor: 0.99
+
+  communication:
+    protocol: "gossip"
+    message_size_bytes: 4096
+    heartbeat_interval_ms: 5000
+    
+    message_types:
+      - "state_update"
+      - "decision_vote"
+      - "learning_share"
+      - "health_check"
+
+  decision_making:
+    voting_mechanism: "weighted_majority"
+    consensus_threshold: 0.7
+    decision_timeout_ms: 5000
+    
+    voting_weights:
+      - by_layer: "layer1"
+        weight: 0.5
+        
+      - by_layer: "layer2"
+        weight: 0.3
+        
+      - by_layer: "layer3"
+        weight: 0.2
+
+  learning:
+    enabled: true
+    framework: "dspy.ts"
+    
+    collaborative_learning:
+      enabled: true
+      peer_exchange_interval_seconds: 60
+      
+    knowledge_sharing:
+      enabled: true
+      repository: "agentdb"
+      
+    collective_intelligence:
+      enabled: true
+      diversity_metric: "jensen_shannon"
+
+  resilience:
+    fault_tolerance: true
+    redundancy_factor: 1.5
+    
+    failure_recovery:
+      agent_replacement_delay_seconds: 30
+      automatic_rebalancing: true
+      
+    leader_election:
+      algorithm: "raft"
+      heartbeat_interval_ms: 100
+
+  performance:
+    optimization_level: 3
+    wasm_enabled: true
+    simd_acceleration: true
+    
+    benchmarks:
+      decision_latency_ms: "<100"
+      throughput_ops_per_sec: 500000
+      scalability_factor: "linear"
+
+  monitoring:
+    enabled: true
+    metrics:
+      - "swarm_diversity"
+      - "consensus_agreement"
+      - "message_throughput"
+      - "learning_rate"
+      - "collective_intelligence_score"

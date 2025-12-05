@@ -1,0 +1,127 @@
+# E2B Sandbox Configuration
+
+e2b:
+  enabled: true
+  runner: "@foxruv/e2b-runner"
+  
+  sandboxes:
+    count: 4
+    auto_scaling: true
+    max_instances: 10
+    
+    platform: "linux-x64-gnu"
+    image: "ubuntu:22.04"
+    
+    resources:
+      cpu_cores: 4
+      memory_gb: 8
+      disk_gb: 50
+      timeout_seconds: 3600
+      
+    environment:
+      NODE_ENV: "production"
+      LOG_LEVEL: "info"
+      
+  deployment:
+    strategy: "rolling"
+    max_concurrent_updates: 2
+    health_check_interval_seconds: 30
+    
+    readiness:
+      initial_delay_seconds: 10
+      timeout_seconds: 30
+      
+    liveness:
+      initial_delay_seconds: 30
+      timeout_seconds: 30
+      interval_seconds: 60
+
+agents:
+  - name: "ran-optimizer"
+    type: "agentic-robotics"
+    role: "primary"
+    priority: "high"
+    instances: 2
+    resources:
+      cpu: 2
+      memory_mb: 2048
+    
+  - name: "swarm-coordinator"
+    type: "ruv-swarm"
+    role: "coordination"
+    priority: "high"
+    instances: 1
+    resources:
+      cpu: 2
+      memory_mb: 1024
+    
+  - name: "learning-engine"
+    type: "dspy.ts"
+    role: "learning"
+    priority: "medium"
+    instances: 1
+    resources:
+      cpu: 2
+      memory_mb: 2048
+    
+  - name: "memory-manager"
+    type: "agentdb"
+    role: "memory"
+    priority: "high"
+    instances: 1
+    resources:
+      cpu: 2
+      memory_mb: 2048
+
+networking:
+  mode: "isolated"
+  enable_inter_sandbox_communication: true
+  
+  ports:
+    internal_port: 3000
+    api_port: 3001
+    monitoring_port: 9090
+    
+  security:
+    ssl_enabled: true
+    firewall_enabled: true
+    whitelist_ips: []
+
+storage:
+  persistent: true
+  mount_points:
+    - path: "/data"
+      size_gb: 10
+      type: "persistent"
+    
+    - path: "/logs"
+      size_gb: 5
+      type: "temporary"
+
+monitoring:
+  enabled: true
+  metrics_collection_interval_seconds: 30
+  
+  metrics:
+    - cpu_usage
+    - memory_usage
+    - disk_usage
+    - network_io
+    - task_queue_depth
+    - error_rate
+
+logging:
+  backend: "stdout"
+  level: "info"
+  format: "json"
+  
+  aggregation:
+    enabled: true
+    endpoint: "http://localhost:9200"
+
+backup:
+  enabled: true
+  strategy: "incremental"
+  interval_hours: 24
+  retention_days: 30
+  location: "./backups/e2b"
