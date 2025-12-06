@@ -53,6 +53,15 @@
             "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-edit --file '{}' --auto-assign-agents true --load-context true"
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/ran_observability.py --event-type PreToolUse --source-app ran-optimizer 2>/dev/null || true"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -71,6 +80,15 @@
           {
             "type": "command",
             "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-edit --file '{}' --format true --update-memory true"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/ran_observability.py --event-type PostToolUse --success --source-app ran-optimizer 2>/dev/null || true"
           }
         ]
       }
