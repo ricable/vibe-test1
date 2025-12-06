@@ -17,7 +17,14 @@
     "dashboard:backend": "tsx src/api/server.ts",
     "dashboard:frontend": "cd dashboard/frontend && npm run dev",
     "train:rl": "tsx src/ran/cm/train-rl-agent.ts",
-    "swarm:deploy": "tsx scripts/deploy-swarm.ts"
+    "swarm:deploy": "tsx scripts/deploy-swarm.ts",
+    "observability": "bun run src/observability/ran-observability-server.ts",
+    "observability:send": "bun run src/observability/send-event.ts",
+    "agent:list": "bun run src/agents/ClaudeCodeAgent.ts list",
+    "agent:run": "bun run src/agents/ClaudeCodeAgent.ts run",
+    "ran:optimize": "bunx claude -p '/project:ran-optimize'",
+    "ran:status": "bunx claude -p '/project:ran-status'",
+    "ran:graph": "tsx src/core/RANKnowledgeGraph.ts"
   },
   "dependencies": {
     "@ruvector/attention-wasm": "^0.1.0",
