@@ -1,0 +1,70 @@
+# DevPod Dockerfile for Mac Silicon (ARM64) - Ericsson RAN Swarm Optimizer
+# Optimized for Apple Silicon M1/M2/M3 with darwin-arm64 bindings
+
+ARG ARCH=arm64
+
+FROM --platform=linux/${ARCH} node:20-bookworm
+
+# Set environment
+ENV NODE_ENV=development
+ENV PLATFORM=devpod-silicon
+ENV ARCH=${ARCH}
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    make \
+    g++ \
+    curl \
+    git \
+    vim \
+    jq \
+    htop \
+    procps \
+    sudo \
+    openssh-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+ARG USERNAME=developer
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
+# Create workspace
+WORKDIR /workspace
+
+# Install global npm packages (core requirements)
+RUN npm install -g \
+    claude-flow@alpha \
+    agentic-flow \
+    tsx \
+    typescript \
+    eslint \
+    prettier \
+    && npm cache clean --force
+
+# Copy package files for dependency installation
+COPY package*.json ./
+
+# Install dependencies (will use arm64 native bindings)
+RUN npm ci && npm cache clean --force
+
+# Create data directories
+RUN mkdir -p /workspace/data/agentdb /workspace/data/vectors /workspace/logs \
+    && chown -R $USERNAME:$USERNAME /workspace
+
+# Switch to non-root user
+USER $USERNAME
+
+# Verify installations
+RUN node --version && npm --version
+
+# Default command
+CMD ["bash"]
