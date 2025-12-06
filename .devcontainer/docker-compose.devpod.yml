@@ -1,0 +1,91 @@
+version: '3.9'
+
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile.devpod
+      args:
+        - ARCH=${ARCH:-arm64}
+    container_name: ericsson-ran-devpod
+    platform: linux/arm64
+    volumes:
+      - ..:/workspace:cached
+      - node-modules:/workspace/node_modules
+      - ran-data:/workspace/data
+    environment:
+      - PLATFORM=devpod-silicon
+      - ARCH=arm64
+      - NODE_ENV=development
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - E2B_API_KEY=${E2B_API_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "3002:3002"
+      - "9090:9090"
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - swarm-network
+    command: sleep infinity
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/arm64
+    container_name: ran-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - swarm-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    platform: linux/arm64
+    container_name: ran-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ../config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - swarm-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    platform: linux/arm64
+    container_name: ran-grafana
+    ports:
+      - "3003:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - swarm-network
+    restart: unless-stopped
+
+volumes:
+  node-modules:
+  ran-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  swarm-network:
+    driver: bridge
