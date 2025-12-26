@@ -1,0 +1,149 @@
+# Memory and Vector Database Configuration
+
+memory:
+  enabled: true
+  system: "agentdb"
+  
+  vector_database:
+    backend: "ruvector"
+    indexing: "hnsw"
+    
+    performance:
+      inserts_per_second: 50000
+      query_latency_ms: 1
+      memory_efficiency: "150x_baseline"
+      
+    index:
+      max_neighbors: 32
+      ef_construction: 200
+      ef_search: 200
+      
+    dimensions:
+      embedding_size: 1536
+      quantization: "fp16"
+
+  persistence:
+    enabled: true
+    backend: "sqlite"
+    path: "./data/memory.db"
+    
+    checkpointing:
+      enabled: true
+      interval_seconds: 300
+      incremental: true
+      
+    backup:
+      enabled: true
+      interval_hours: 6
+      retention_days: 30
+      location: "./backups/memory"
+
+  storage_tiers:
+    hot:
+      size_gb: 2
+      ttl_hours: 24
+      access_pattern: "frequent"
+      
+    warm:
+      size_gb: 5
+      ttl_days: 7
+      access_pattern: "occasional"
+      
+    cold:
+      size_gb: 10
+      ttl_days: 90
+      access_pattern: "archival"
+
+  memory_types:
+    episodic:
+      enabled: true
+      retention_days: 30
+      use_case: "specific_events"
+      
+    semantic:
+      enabled: true
+      retention_days: 90
+      use_case: "knowledge_facts"
+      
+    procedural:
+      enabled: true
+      retention_days: 365
+      use_case: "learned_skills"
+      
+    skill_library:
+      enabled: true
+      retention_days: "unlimited"
+      use_case: "optimization_strategies"
+
+  reasoning_bank:
+    enabled: true
+    causal_reasoning: true
+    reflexion: true
+    
+    learning:
+      mode: "continuous"
+      update_frequency_seconds: 60
+      
+  content_addressable_storage:
+    enabled: true
+    deduplication: true
+    compression: "zstd"
+
+  search:
+    vector_similarity: true
+    keyword_search: true
+    semantic_search: true
+    hybrid_search: true
+    
+    retrieval:
+      top_k: 10
+      similarity_threshold: 0.7
+      
+    ranking:
+      algorithm: "bm25_with_vector"
+      personalization: true
+
+  graph_database:
+    enabled: true
+    system: "@ruvector/graph-node"
+    
+    node_types:
+      - "agents"
+      - "tasks"
+      - "decisions"
+      - "outcomes"
+      - "learned_patterns"
+      
+    relationship_types:
+      - "coordinated"
+      - "depends_on"
+      - "generates"
+      - "learns_from"
+
+  compression:
+    enabled: true
+    algorithm: "zstd"
+    compression_level: 3
+    
+  encryption:
+    enabled: true
+    algorithm: "AES-256-GCM"
+    key_derivation: "argon2"
+
+  maintenance:
+    garbage_collection_interval_hours: 24
+    defragmentation_enabled: true
+    statistics_update_interval_hours: 12
+    
+    integrity_checks:
+      enabled: true
+      frequency_hours: 48
+
+  monitoring:
+    enabled: true
+    metrics:
+      - "total_entries"
+      - "storage_usage_percent"
+      - "query_latency_p50_p99"
+      - "hit_rate_percent"
+      - "eviction_rate"

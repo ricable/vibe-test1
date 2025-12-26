@@ -1,0 +1,58 @@
+{
+  "name": "Ericsson RAN Swarm Optimizer - Mac Silicon DevPod",
+  "dockerComposeFile": "docker-compose.devpod.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  },
+  "forwardPorts": [3000, 3001, 3002, 9090, 8080, 6379],
+  "portsAttributes": {
+    "3000": { "label": "API Server" },
+    "3001": { "label": "WebSocket" },
+    "3002": { "label": "Dashboard" },
+    "9090": { "label": "Metrics" },
+    "8080": { "label": "Health Check" },
+    "6379": { "label": "Redis" }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
+  "remoteEnv": {
+    "PLATFORM": "devpod-silicon",
+    "ARCH": "arm64",
+    "NODE_ENV": "development",
+    "CLAUDE_FLOW_ENABLED": "true",
+    "HIVE_MIND_ENABLED": "true"
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/data,target=/workspace/data,type=bind",
+    "source=ericsson-ran-node-modules,target=/workspace/node_modules,type=volume"
+  ],
+  "containerEnv": {
+    "TZ": "UTC"
+  }
+}

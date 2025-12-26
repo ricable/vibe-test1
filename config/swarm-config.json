@@ -1,7 +1,7 @@
 {
   "swarm": {
     "name": "ericsson-ran-swarm",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "topology": "mesh",
     "maxAgentsPerCluster": 256,
     "heartbeatIntervalMs": 1000,
@@ -43,7 +43,7 @@
     }
   },
   "ruvector": {
-    "version": "0.1.26",
+    "version": "0.1.31",
     "gnn": {
       "type": "ST-GNN",
       "layers": 4,
@@ -55,27 +55,87 @@
     "hypergraph": {
       "enabled": true,
       "maxHyperedgeSize": 16
+    },
+    "sona": {
+      "enabled": true,
+      "loraEnabled": true,
+      "ewcEnabled": true,
+      "reasoningBankEnabled": true
+    },
+    "router": {
+      "type": "semantic",
+      "algorithm": "HNSW",
+      "intentMatching": true
     }
   },
-  "midstreamer": {
-    "version": "0.2.3",
-    "streaming": {
-      "bufferSizeMs": 60000,
-      "windowSizeMs": 900000
+  "claudeFlow": {
+    "version": "2.7.41",
+    "enabled": true,
+    "hiveMind": {
+      "enabled": true,
+      "topology": "mesh"
     },
-    "dtw": {
-      "windowSize": 100,
-      "distanceMetric": "euclidean"
+    "sparc": {
+      "enabled": true,
+      "modes": ["spec-pseudocode", "architect", "tdd", "integration"]
     },
-    "chaosAnalysis": {
-      "lyapunovExponentThreshold": 0.05,
-      "embeddingDimension": 5,
-      "delay": 1
+    "mcp": {
+      "enabled": true,
+      "servers": ["claude-flow", "ruv-swarm", "strange-loops-mcp"]
     }
   },
-  "optimization": {
+  "ranOptimization": {
+    "cm": {
+      "enabled": true,
+      "planner": "GOAP",
+      "safetyVerification": "LTL",
+      "rollbackEnabled": true,
+      "maxConcurrentChanges": 5,
+      "managedObjects": [
+        "EUtranCellFDD",
+        "NRCellDU",
+        "NRCellCU",
+        "RetDevice",
+        "ReportConfigEUtra",
+        "Beamforming"
+      ]
+    },
+    "pm": {
+      "enabled": true,
+      "chaosDetection": {
+        "enabled": true,
+        "lyapunovThreshold": 0.05,
+        "embeddingDimension": 5,
+        "latencyTargetMs": 10
+      },
+      "forecasting": {
+        "model": "LSTM",
+        "horizonMs": 900000,
+        "latencyTargetMs": 1
+      },
+      "energySaving": {
+        "enabled": true
+      }
+    },
+    "fm": {
+      "enabled": true,
+      "anomalyDetection": {
+        "type": "fast-path",
+        "mode": "realtime"
+      },
+      "rca": {
+        "engine": "neuro-symbolic",
+        "latencyTargetMs": 500
+      },
+      "alarmCorrelation": {
+        "enabled": true
+      },
+      "selfHealing": {
+        "enabled": true
+      }
+    },
     "granularities": ["15min", "1hour", "1day", "1week"],
-    "safetGuardrails": {
+    "safetyGuardrails": {
       "maxPowerDbm": 46,
       "minPowerDbm": -10,
       "maxP0Dbm": -60,
@@ -95,12 +155,57 @@
       "warmupSteps": 10000
     }
   },
+  "agents": {
+    "types": [
+      {
+        "name": "cm-agent",
+        "type": "configurator",
+        "role": "Configuration Management",
+        "capabilities": ["GOAP planning", "LTL verification", "atomic rollback"],
+        "priority": "high"
+      },
+      {
+        "name": "pm-agent",
+        "type": "optimizer",
+        "role": "Performance Management",
+        "capabilities": ["chaos detection", "LSTM forecasting", "energy optimization"],
+        "priority": "high"
+      },
+      {
+        "name": "fm-agent",
+        "type": "healer",
+        "role": "Fault Management",
+        "capabilities": ["anomaly detection", "neuro-symbolic RCA", "alarm correlation", "self-healing"],
+        "priority": "critical"
+      },
+      {
+        "name": "gnn-agent",
+        "type": "analyzer",
+        "role": "Spatial Intelligence",
+        "capabilities": ["cell embeddings", "PCI graph coloring", "handover loop detection"],
+        "priority": "medium"
+      },
+      {
+        "name": "coordinator",
+        "type": "queen",
+        "role": "Swarm Coordination",
+        "capabilities": ["federated learning", "consensus building", "task orchestration"],
+        "priority": "critical"
+      }
+    ]
+  },
   "security": {
     "aidefence": {
-      "version": "0.1.6",
+      "version": "2.1.1",
       "adversarialDetection": true,
       "inputValidation": true,
-      "modelProvenance": true
+      "modelProvenance": true,
+      "guardrails": true
+    },
+    "differentialPrivacy": {
+      "enabled": true,
+      "epsilon": 1.0,
+      "delta": 1e-5
     },
     "cryptography": {
       "signatureAlgorithm": "Ed25519",
@@ -111,6 +216,32 @@
     "metricsPort": 9090,
     "healthCheckPort": 8080,
     "loggingLevel": "info",
-    "tracingEnabled": true
+    "loggingFormat": "json",
+    "tracingEnabled": true,
+    "tracingSampleRate": 0.1
+  },
+  "platforms": {
+    "e2b": {
+      "enabled": true,
+      "sandboxCount": 4,
+      "autoScaling": true,
+      "maxInstances": 10,
+      "cpuCores": 4,
+      "memoryGb": 8,
+      "timeoutSeconds": 3600
+    },
+    "devpod": {
+      "enabled": true,
+      "architecture": "arm64",
+      "dockerCompose": true,
+      "redisEnabled": true,
+      "prometheusEnabled": true,
+      "grafanaEnabled": true
+    },
+    "claudeWeb": {
+      "enabled": true,
+      "sessionTimeoutMs": 3600000,
+      "maxTokens": 200000
+    }
   }
 }

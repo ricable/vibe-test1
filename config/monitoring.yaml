@@ -1,0 +1,223 @@
+# Monitoring, Logging, and Observability Configuration
+
+monitoring:
+  enabled: true
+  interval_seconds: 30
+  
+  metrics:
+    enabled: true
+    backend: "prometheus"
+    port: 9090
+    
+    collectors:
+      - "agents"
+      - "tasks"
+      - "memory"
+      - "e2b_sandboxes"
+      - "ran_optimization"
+      - "llm_router"
+      - "vector_db"
+      - "system"
+
+logging:
+  enabled: true
+  backend: "pino"
+  level: "info"
+  
+  outputs:
+    - type: "console"
+      format: "pretty"
+      colorized: true
+      
+    - type: "file"
+      directory: "./logs"
+      level: "debug"
+      format: "json"
+      
+      rotation:
+        size_mb: 100
+        retention_days: 7
+        max_files: 10
+        
+    - type: "remote"
+      enabled: false
+      endpoint: "http://localhost:9200"
+      batch_size: 100
+      flush_interval_seconds: 5
+
+  structured_logging:
+    enabled: true
+    include_trace_id: true
+    include_span_id: true
+    include_context: true
+
+  log_levels:
+    core: "info"
+    agents: "debug"
+    memory: "info"
+    e2b: "info"
+    ran: "debug"
+    llm: "info"
+    swarm: "debug"
+
+tracing:
+  enabled: true
+  backend: "jaeger"
+  
+  config:
+    endpoint: "http://localhost:14268/api/traces"
+    sample_rate: 0.1
+    
+    exporters:
+      - "jaeger"
+      - "console"
+      
+  spans:
+    capture_task_duration: true
+    capture_memory_operations: true
+    capture_llm_calls: true
+    capture_sandbox_execution: true
+
+metrics_collection:
+  system:
+    cpu_usage: true
+    memory_usage: true
+    disk_usage: true
+    network_io: true
+    
+  applications:
+    agents:
+      - total_agents
+      - active_agents
+      - agent_cpu_usage
+      - agent_memory_usage
+      - task_count
+      - success_rate
+      
+    tasks:
+      - total_tasks
+      - completed_tasks
+      - failed_tasks
+      - pending_tasks
+      - average_duration_ms
+      - p50_p99_latency_ms
+      
+    memory:
+      - total_entries
+      - storage_usage_percent
+      - query_latency_p50_p99_ms
+      - hit_rate_percent
+      - eviction_rate
+      
+    e2b:
+      - sandbox_count
+      - sandbox_utilization_percent
+      - task_queue_depth
+      - execution_time_ms
+      - error_rate
+      
+    ran:
+      - optimization_cycles
+      - average_cycle_time_ms
+      - kpi_improvements_percent
+      - changes_applied
+      - rollbacks
+      
+    llm:
+      - requests_total
+      - requests_by_model
+      - latency_p50_p99_ms
+      - error_rate
+      - cost_per_hour
+
+alerting:
+  enabled: true
+  
+  rules:
+    - name: "high_agent_error_rate"
+      condition: "error_rate > 0.05"
+      severity: "critical"
+      action: "page"
+      
+    - name: "memory_pressure"
+      condition: "memory_usage_percent > 85"
+      severity: "warning"
+      action: "notify"
+      
+    - name: "e2b_sandbox_failure"
+      condition: "sandbox_utilization < 50"
+      severity: "critical"
+      action: "page"
+      
+    - name: "ran_optimization_slowdown"
+      condition: "optimization_cycle_time > 1000"
+      severity: "warning"
+      action: "notify"
+      
+    - name: "llm_cost_threshold"
+      condition: "llm_cost_per_hour > 100"
+      severity: "warning"
+      action: "notify"
+
+dashboards:
+  - name: "main_overview"
+    refresh_interval_seconds: 5
+    widgets:
+      - "agent_status"
+      - "task_pipeline"
+      - "memory_performance"
+      - "ran_kpis"
+      - "system_health"
+      
+  - name: "ran_optimization"
+    refresh_interval_seconds: 30
+    widgets:
+      - "optimization_cycles"
+      - "kpi_trends"
+      - "changes_applied"
+      - "learning_progress"
+      
+  - name: "system_performance"
+    refresh_interval_seconds: 10
+    widgets:
+      - "cpu_memory_network"
+      - "disk_io"
+      - "thread_count"
+      - "garbage_collection"
+
+retention_policies:
+  metrics: 30 # days
+  logs: 7 # days
+  traces: 3 # days
+  events: 14 # days
+
+performance_profiling:
+  enabled: false
+  sample_rate: 0.01
+  
+  profile_types:
+    - "cpu"
+    - "memory"
+    - "allocation"
+    - "blocking"
+
+health_checks:
+  enabled: true
+  interval_seconds: 60
+  
+  checks:
+    - name: "orchestration_health"
+      endpoint: "/health/orchestration"
+      timeout_seconds: 5
+      
+    - name: "e2b_connectivity"
+      endpoint: "/health/e2b"
+      timeout_seconds: 10
+      
+    - name: "memory_accessibility"
+      endpoint: "/health/memory"
+      timeout_seconds: 5
+      
+    - name: "llm_availability"
+      endpoint: "/health/llm"
+      timeout_seconds: 30

@@ -1,0 +1,134 @@
+# Ericsson RAN Optimization Configuration
+
+ran:
+  enabled: true
+  agent: "agentic-robotics"
+  
+  optimization:
+    interval_seconds: 300
+    parallel_tasks: 4
+    
+    objectives:
+      - "maximize_throughput"
+      - "minimize_latency"
+      - "balance_load"
+      - "optimize_energy"
+      - "maximize_qoe"
+    
+    weights:
+      throughput: 0.25
+      latency: 0.25
+      load_balance: 0.2
+      energy: 0.15
+      qoe: 0.15
+
+  metrics:
+    collection_interval_seconds: 30
+    
+    cell_metrics:
+      - "throughput_mbps"
+      - "latency_ms"
+      - "load_percent"
+      - "interference_level"
+      - "user_count"
+      - "prbusage_percent"
+      - "modulation_and_coding"
+      - "power_usage_watts"
+      
+    user_metrics:
+      - "qoe_score"
+      - "session_duration"
+      - "data_rate"
+      - "latency_experience"
+      - "drop_rate"
+      
+    network_metrics:
+      - "total_traffic_mbps"
+      - "peak_traffic_mbps"
+      - "cell_edge_users_percent"
+      - "congestion_level"
+
+  optimization_strategies:
+    load_balancing:
+      enabled: true
+      algorithm: "multi_objective"
+      threshold_percent: 85
+      target_range: [70, 80]
+      
+    interference_management:
+      enabled: true
+      epa_power_control: true
+      icic_enabled: true
+      rrc_optimization: true
+      
+    energy_efficiency:
+      enabled: true
+      target_pue: 1.6
+      sleep_mode_enabled: true
+      
+    frequency_allocation:
+      enabled: true
+      reuse_algorithm: "dynamic"
+      
+    antenna_optimization:
+      enabled: true
+      tilt_adjustment: true
+      beam_forming: true
+      
+    neighbor_optimization:
+      enabled: true
+      auto_neighbor_relations: true
+
+  decision_engine:
+    type: "dspy"
+    learning_enabled: true
+    learning_rate: 0.005
+    
+    routing:
+      type: "@ruvector/ruvllm"
+      adaptive_selection: true
+      fallback_enabled: true
+      
+  constraints:
+    max_changes_per_interval: 10
+    min_interval_between_changes: 60
+    rollback_threshold_percent: -5
+    
+  monitoring:
+    enabled: true
+    real_time_dashboards: true
+    kpi_tracking: true
+    
+    alerts:
+      enabled: true
+      anomaly_detection: true
+      
+      thresholds:
+        throughput_drop_percent: 10
+        latency_increase_percent: 20
+        load_imbalance: 60
+
+  safety:
+    enabled: true
+    validation_required: true
+    preview_changes: true
+    rollback_capability: true
+    
+    constraints:
+      max_power_change_percent: 30
+      max_tilt_change_degrees: 5
+      max_neighbor_changes: 5
+
+learning:
+  enabled: true
+  framework: "dspy.ts"
+  
+  patterns:
+    capture_decisions: true
+    capture_outcomes: true
+    capture_timing: true
+    
+  self_improvement:
+    enabled: true
+    improvement_rate_target_percent: 0.5
+    optimization_cycles: 1000

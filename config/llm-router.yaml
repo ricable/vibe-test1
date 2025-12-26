@@ -1,0 +1,168 @@
+# Multi-Model LLM Router Configuration
+
+llm_router:
+  enabled: true
+  system: "@ruvector/ruvllm"
+  
+  routing_strategy:
+    type: "adaptive_neural"
+    router: "@ruvector/tiny-dancer"
+    optimization_rate_seconds: 60
+    
+  providers:
+    - name: "anthropic"
+      model: "claude-opus"
+      priority: 1
+      weight: 0.4
+      
+      config:
+        temperature: 0.7
+        max_tokens: 2048
+        timeout_seconds: 30
+        
+      capabilities:
+        reasoning: true
+        long_context: true
+        cost_per_1k_tokens: 0.015
+        
+    - name: "openai"
+      model: "gpt-4"
+      priority: 2
+      weight: 0.3
+      
+      config:
+        temperature: 0.7
+        max_tokens: 2048
+        timeout_seconds: 30
+        
+      capabilities:
+        reasoning: true
+        long_context: true
+        cost_per_1k_tokens: 0.03
+        
+    - name: "google"
+      model: "gemini-pro"
+      priority: 3
+      weight: 0.2
+      
+      config:
+        temperature: 0.7
+        max_tokens: 2048
+        timeout_seconds: 30
+        
+      capabilities:
+        reasoning: false
+        long_context: true
+        cost_per_1k_tokens: 0.00125
+        
+    - name: "local"
+      model: "llama2-70b"
+      priority: 4
+      weight: 0.1
+      
+      config:
+        temperature: 0.7
+        max_tokens: 2048
+        timeout_seconds: 60
+        
+      capabilities:
+        reasoning: true
+        long_context: false
+        cost_per_1k_tokens: 0
+
+  decision_criteria:
+    - metric: "latency"
+      weight: 0.3
+      target_ms: 1000
+      
+    - metric: "cost"
+      weight: 0.2
+      budget_per_hour_cents: 100
+      
+    - metric: "quality"
+      weight: 0.3
+      min_score: 0.8
+      
+    - metric: "reliability"
+      weight: 0.2
+      min_uptime_percent: 99.5
+
+  optimization:
+    enabled: true
+    framework: "@foxruv/iris"
+    
+    adaptive_learning:
+      enabled: true
+      system: "@ruvector/sona"
+      
+      learning_modes:
+        - "quality_optimization"
+        - "cost_minimization"
+        - "latency_reduction"
+        - "throughput_maximization"
+      
+      update_interval_seconds: 300
+
+  fallback_chain:
+    enabled: true
+    max_retries: 3
+    
+    chain:
+      - "anthropic"
+      - "openai"
+      - "google"
+      - "local"
+
+  caching:
+    enabled: true
+    backend: "redis"
+    
+    policies:
+      - pattern: "^reasoning_.*"
+        ttl_hours: 24
+        
+      - pattern: "^optimization_.*"
+        ttl_hours: 12
+        
+      - pattern: "^standard_.*"
+        ttl_hours: 6
+
+  prompt_optimization:
+    enabled: true
+    system: "@foxruv/iris-agentic-synth"
+    
+    techniques:
+      - "few_shot_learning"
+      - "chain_of_thought"
+      - "instruction_tuning"
+      - "prompt_engineering"
+    
+    genetic_evolution:
+      enabled: true
+      population_size: 10
+      generations: 5
+
+  monitoring:
+    enabled: true
+    metrics:
+      - "request_latency"
+      - "cost_per_request"
+      - "error_rate"
+      - "model_utilization"
+      - "quality_score"
+      
+    alerts:
+      enabled: true
+      on_cost_exceed: true
+      on_quality_drop: true
+      on_error_rate: true
+
+  security:
+    enabled: true
+    prompt_injection_detection: true
+    output_validation: true
+    rate_limiting: true
+    
+    rate_limits:
+      requests_per_minute: 100
+      tokens_per_hour: 100000

@@ -68,6 +68,20 @@ This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Co
 - `npm run lint` - Linting
 - `npm run typecheck` - Type checking
 
+### RAN Optimization Commands (Bun/TypeScript)
+- `npm run observability` - Start RAN observability server (Bun)
+- `npm run observability:send` - Send event to observability server
+- `npm run agent:list` - List Claude Code agent sessions
+- `npm run agent:run` - Run Claude Code agent with prompt
+- `npm run ran:optimize` - Execute RAN optimization workflow
+- `npm run ran:graph` - Work with RAN Knowledge Graph
+
+### Slash Commands (Claude Code)
+- `/project:ran-optimize <cluster_id> <mode>` - Closed-loop RAN optimization
+- `/project:ran-infinite <spec> <dir> <count>` - Infinite agentic optimization loop
+- `/project:ran-status <cluster_id>` - Check cluster KPI status
+- `/project:ran-graph <cluster_id>` - Visualize interference graph
+
 ## SPARC Workflow Phases
 
 1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
@@ -447,3 +461,90 @@ WASM modules built from `rust-core/` via wasm-pack:
 - Attention mechanisms (`@ruvector/attention-wasm`)
 - GNN operations (`@ruvector/gnn-wasm`)
 - Graph algorithms (`@ruvector/graph-wasm`)
+
+## 📊 Graph Knowledge Integration (ruvnet/graph-data-structure)
+
+### RANKnowledgeGraph Class
+
+Located in `src/core/RANKnowledgeGraph.ts`, provides:
+- **Topological Sort**: Optimization order for cell dependencies
+- **Dijkstra's Shortest Path**: Interference propagation analysis
+- **K-Hop Neighborhood**: GNN message passing context
+- **PyTorch Geometric Export**: Convert to torch_geometric format
+
+```typescript
+import { RANKnowledgeGraph } from '@/core/RANKnowledgeGraph';
+
+const graph = new RANKnowledgeGraph();
+graph.addCell(cgi, { staticFeatures, dynamicFeatures });
+graph.addInterference(sourceCgi, targetCgi, interferenceLevel);
+
+// Get optimization order (dominant interferors first)
+const order = graph.getOptimizationOrder();
+
+// Find interference path
+const path = graph.getInterferencePath(sourceCell, targetCell);
+
+// Export for GNN
+const pygData = graph.toTorchGeometricFormat();
+```
+
+## 📡 Observability System (Bun/TypeScript)
+
+Based on disler/claude-code-hooks-multi-agent-observability pattern.
+
+### Server (`src/observability/ran-observability-server.ts`)
+- Bun HTTP + WebSocket server
+- SQLite persistence with WAL mode
+- Real-time event streaming
+- REST API endpoints: `/events`, `/events/recent`, `/events/stats`
+
+### Event Sender (`src/observability/send-event.ts`)
+- CLI tool for hooks: `bun run observability:send --event-type RANOptimization`
+- Pre-tool validation with RAN safety guardrails
+- Integration with claude-flow hooks
+
+### Event Types
+| Type | Emoji | Usage |
+|------|-------|-------|
+| PreToolUse | 🔧 | Tool validation |
+| PostToolUse | ✅ | Execution result |
+| RANOptimization | 📡 | Parameter changes |
+| KPIAnomaly | ⚠️ | Anomaly detection |
+| FaultDetected | 🔴 | Problem classification |
+| GuardrailBlocked | 🛡️ | Safety violation |
+
+## 🤖 Claude Code Agent (Bun/TypeScript)
+
+Based on disler/big-3-super-agent pattern.
+
+### RANOptimizerAgent (`src/agents/ClaudeCodeAgent.ts`)
+- Session persistence with registry
+- Operator file logging
+- Streaming output support
+- RAN-specific methods: `analyzeKPIs()`, `proposeOptimization()`, `validateActions()`
+
+```typescript
+import { RANOptimizerAgent } from '@/agents/ClaudeCodeAgent';
+
+const agent = new RANOptimizerAgent('cluster-optimizer');
+const result = await agent.analyzeKPIs('cluster_001');
+const actions = await agent.proposeOptimization('cluster_001', 'power');
+```
+
+## 🔄 uv → bunx Command Mapping
+
+| Python (uv) | Bun/TypeScript |
+|-------------|----------------|
+| `uv run send_event.py` | `bun run observability:send` |
+| `uv run big_three_agents.py` | `bun run src/agents/ClaudeCodeAgent.ts` |
+| `uvx claude-flow hooks` | `bunx claude-flow@alpha hooks` |
+| `uv pip install` | `bun install` |
+
+## 🎯 RAN-Specific Skills
+
+Located in `.claude/skills/ran-graph-optimization.md`:
+- Graph-based reasoning for cell optimization
+- Integration with AgentDB ReasoningBank
+- GNN message passing patterns
+- Causal root cause analysis
